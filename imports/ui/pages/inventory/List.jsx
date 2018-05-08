@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { Layout, Table } from 'antd';
+import { Layout, Table, Pagination } from 'antd';
 import { Spin } from 'antd';
 import './inventory.less';
 
@@ -12,13 +12,36 @@ export default class List extends Component {
     }
   }
 
-  render() {
-    const { dataSource, columns, rowSelection } = this.props;
+  onChange = (pageNumber) => {
+    const { location } = this.props;
+    location.state = { 
+      skip: (pageNumber -1) * 10,
+      limit: 10,
+      page: pageNumber
+    }
+    this.props.history.push('/inventory' ,{...this.props.location.state})
+  }
 
+
+  render() {
+    const { dataSource, columns, rowSelection, total, page } = this.props;
     return (
       <div className='inventory-container'>
         <Spin spinning={this.state.loading} className="spinner-position" size="large" />
-        <Table className="content" rowSelection={rowSelection} dataSource={dataSource} columns={columns} />
+        <Table 
+          className="content" 
+          rowSelection={rowSelection} 
+          dataSource={dataSource} 
+          pagination={false} 
+          columns={columns} 
+        />
+        <Pagination 
+          className="pagination" 
+          showQuickJumper 
+          defaultCurrent={page} 
+          total={total} 
+          onChange={this.onChange} 
+        />
       </div>
     )
   }

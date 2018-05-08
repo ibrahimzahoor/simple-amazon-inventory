@@ -1,48 +1,9 @@
 import React from 'react';
 import { withTracker } from 'meteor/react-meteor-data';
-
 import Inventory from '../pages/Inventory.jsx';
 
-const dataSource=[];
-
-//dummy data remove after publications
-for(let i = 0 ; i < 46; i++) {
-  dataSource.push({
-    key: i,
-    name: `amir ${i}`,
-    age: `age ${i}`,
-    address: `address ${i}`,
-    DOB: `date ${i}`, 
-    titlt: `title ${i}`,
-    rddress: `rihaish ${i}`
-  })
-}
-//dummy data removed after publications
-const columns = [{
-  title: 'Name',
-  dataIndex: 'name',
-  key: 'name',
-}, {
-  title: 'Age',
-  dataIndex: 'age',
-  key: 'age',
-}, {
-  title: 'Address',
-  dataIndex: 'address',
-  key: 'address',
-},{
-  title: 'DOB',
-  dataIndex: 'DOB',
-  key: 'DOB',
-},{
-  title: 'Ttitle',
-  dataIndex: 'titlt',
-  key: 'titlt',
-},{
-  title: 'Rihaish',
-  dataIndex: 'rddress',
-  key: 'rddress',
-}];
+import { InventoryList } from '../../api/inventory/schema.js';
+import DummyList from '../../startup/both/dummy-list';
 
 const rowSelection = {
   onChange: (selectedRowKeys, selectedRows) => {
@@ -54,7 +15,21 @@ const rowSelection = {
 }
 
 export default InventoryContainer = withTracker(({location, history, match}) => {
+  
+  const state = location.state || {};
+  const skip = state && state.skip ? state.skip : 0;
+  const limit = state && state.limit ? state.limit : 10;
+  const page = state && state.page ? state.page : 1;
+
+  const handle = Meteor.subscribe('inventory.list', {skip, limit});
+  const list = handle.ready() ? InventoryList.find({}, {limit: limit}).fetch(): [];
+
   return (
-    tableData = {dataSource, columns, rowSelection}
+    tableData = {
+      dataSource: list ? list : [], 
+      columns: DummyList.columns, 
+      rowSelection, 
+      page: page ? page : 1
+    }
   );
 })(Inventory);
